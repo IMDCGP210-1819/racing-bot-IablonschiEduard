@@ -16,14 +16,14 @@
  ***************************************************************************/
 
 #ifdef _WIN32
-#include <windows.h>
+//#include <windows.h>
 #endif
 
-#include <stdio.h>
-#include <stdlib.h> 
-#include <string.h> 
-#include <math.h>
-
+#include <cstdio>
+#include <cstdlib> 
+#include <cstring> 
+#include <cmath>
+#include <cstring>
 #include <tgf.h> 
 #include <track.h> 
 #include <car.h> 
@@ -47,7 +47,7 @@ static int  InitFuncPt(int index, void *pt);
 extern "C" int 
 s188800EduardIablonschi(tModInfo *modInfo)
 {
-    memset(modInfo, 0, 10*sizeof(tModInfo));
+    std::memset(modInfo, 0, 10*sizeof(tModInfo));
 
     modInfo->name    = strdup("s188800EduardIablonschi");		/* name of the module (short) */
     modInfo->desc    = strdup("");	/* description of the module (can be long) */
@@ -89,20 +89,67 @@ newrace(int index, tCarElt* car, tSituation *s)
 { 
 } 
 
+// initialising the counter
+static int stuck = 0;
+
+/* the boolean value represents if the car is stuck */
+bool isStuck(tCarElt* car)
+{
+	float angle = RtTrackSideTgAngleL(&(car->_trkPos)) - car->_yaw;
+	NORM_PI_PI(angle);
+	// checks if the angle is smaller than 30 degrees
+	if (fabs(angle) < 30.0 / 180.0*PI) {
+		stuck = 0;
+		return false;
+	}
+	if (stuck < 100) {
+		stuck++;
+		return false;
+	}
+	else {
+		return true;
+	}
+}
+
+
 /* Drive during race. */
-static void  
-drive(int index, tCarElt* car, tSituation *s) 
-{ 
-    memset((void *)&car->ctrl, 0, sizeof(tCarCtrl)); 
-    car->ctrl.brakeCmd = 1.0; /* all brakes on ... */ 
-    /*  
-     * add the driving code here to modify the 
-     * car->_steerCmd 
-     * car->_accelCmd 
-     * car->_brakeCmd 
-     * car->_gearCmd 
-     * car->_clutchCmd 
-     */ 
+static void
+drive(int index, tCarElt* car, tSituation *s)
+{
+	memset((void *)&car->ctrl, 0, sizeof(tCarCtrl));
+
+	float angle;
+	const float SC = 1.0;
+
+	if (isStuck(car)) // if the car is stuck, it will move backwards, and the steering angle will be the opposite of the one which it entered the corner with
+	{
+		angle = -RtTrackSideTgAngleL(&(car->_trkPos)) + car->_yaw;
+		car->ctrl.steer = angle / car->_steerLock; // the steering angle will not change for the current segment of the track
+		car->ctrl.gear = -1; // reverse gear
+		car->ctrl.accelCmd = 0.25; // 25% acceleration
+		car->ctrl.brakeCmd = 0.0; // no brakes
+	}
+	else
+	{
+		angle = RtTrackSideTgAngleL(&(car->_trkPos)) - car->_yaw; // initial steering angle = tangent angle of the track - angle of the car
+		NORM_PI_PI(angle);
+		angle -= SC * car->_trkPos.toMiddle / car->_trkPos.seg->width;
+
+		car->ctrl.steer = angle / car->_steerLock; // the steering angle will not change for the current segment of the track
+		car->ctrl.gear = 1; // first gear
+		car->ctrl.accelCmd = 0.25; // 25% acceleration 
+		car->ctrl.brakeCmd = 0.0; // no brakes
+
+		/*
+		* add the driving code here to modify the
+		* car->_steerCmd
+		* car->_accelCmd
+		* car->_brakeCmd
+		* car->_gearCmd
+		* car->_clutchCmd
+		*/
+	}
+							  
 }
 
 /* End of the current race */

@@ -90,6 +90,7 @@ newrace(int index, tCarElt* car, tSituation *s)
 } 
 
 /* Drive during race. */
+
 static void  
 drive(int index, tCarElt* car, tSituation *s) 
 { 
@@ -102,7 +103,7 @@ drive(int index, tCarElt* car, tSituation *s)
      * car->_brakeCmd 
      * car->_gearCmd 
      * car->_clutchCmd 
-     */ 
+     */
 }
 
 /* End of the current race */

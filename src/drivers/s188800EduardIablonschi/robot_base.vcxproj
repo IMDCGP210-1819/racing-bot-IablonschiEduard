@@ -111,7 +111,7 @@
       <OutputFile>.\Release/robot_base.bsc</OutputFile>
     </Bscmake>
     <PostBuildEvent>
-      <Command>copy $(TargetDir)*.dll ..\..\..\runtime\drivers\robot_base</Command>
+      <Command>copy $(TargetDir)*.dll ..\..\..\runtime\drivers\s188800EduardIablonschi</Command>
     </PostBuildEvent>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
