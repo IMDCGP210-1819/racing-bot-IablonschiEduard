@@ -113,6 +113,8 @@ bool isStuck(tCarElt* car)
 
 
 /* Drive during race. */
+/* The code written below should work, however, because of the multiple compiling errors I couldn't fix, I wasn't 
+really able to test it myself*/
 static void
 drive(int index, tCarElt* car, tSituation *s)
 {
